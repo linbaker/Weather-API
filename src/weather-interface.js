@@ -1,24 +1,20 @@
+import { WeatherService } from "./weather-service.js";
+
 $(document).ready(function () {
-    $('#weatherLocation').click(function () {
-        const city = $('#location').val();
-        $('#location').val("");
+            $('#weatherLocation').click(function () {
+                    let city = $('#location').val();
+                    $('#location').val("");
 
-        let request = new XMLHttpRequest();
-        const url = `http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=6a33b6271afb4ed28ea9f07c3f231a1c`;
+                    let weatherService = new WeatherService();
+                    let promise = weatherService.getWeatherByCity(city);
 
-        request.onreadystatechange = function () {
-            if (this.readyState === 4 && this.status === 200) {
-                const response = JSON.parse(this.responseText);
-                getElements(response);
-            }
-        }
+                    promise.then(function (response) {
+                            let body = JSON.parse(response);
+                            $('.showHumidity').text(`The humidity in ${city} is ${body.main.humidity}%`);
+                            $('.showTemp').text(`The temperature in Kelvins is ${body.main.temp} degrees`);
+                        }, function (error) {
+                            $('.showErrors').text('There was an error processing your request: ${error.message}');
+                        });
 
-        request.open("GET", url, true);
-        request.send();
-
-        const getElements = function (response) {
-            $('.showHumidity').text(`The humidity in ${city} is ${response.main.humidity}%`);
-            $('.showTemp').text(`The temperature in Kelvins is ${response.main.temp} degrees.`);
-        }
-    });
-});
+                    });
+            });
